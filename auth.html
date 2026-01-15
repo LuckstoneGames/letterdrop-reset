@@ -183,9 +183,9 @@
         // Route based on type
         if (!accessToken) {
             showError('Invalid or expired link. Please request a new one from the app.');
-        } else if (type === 'recovery') {
+        if (type === 'recovery') {
             initPasswordReset();
-        } else if (type === 'signup') {
+        } else if (type === 'signup' || type === 'email_change') {
             initEmailConfirmation();
         } else {
             showError('Unknown action type. Please try again.');
