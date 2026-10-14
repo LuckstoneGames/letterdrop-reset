@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>LetterDrop - Authentication</title>
+    <title>LettrDrop - Authentication</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
         * {
@@ -130,7 +130,7 @@
 <body>
     <div class="container">
         <div class="icon">🎮</div>
-        <h1 id="title">LetterDrop</h1>
+        <h1 id="title">LettrDrop</h1>
         <div class="subtitle" id="subtitle">Loading...</div>
         <div id="message"></div>
         
@@ -193,13 +193,13 @@
 
         function showError(msg) {
             titleEl.textContent = 'Authentication Error';
-            subtitleEl.textContent = 'LetterDrop';
+            subtitleEl.textContent = 'LettrDrop';
             messageDiv.innerHTML = `<div class="message error">❌ ${msg}</div>`;
         }
 
         function initPasswordReset() {
             titleEl.textContent = 'Reset Password';
-            subtitleEl.textContent = 'LetterDrop';
+            subtitleEl.textContent = 'LettrDrop';
             passwordForm.style.display = 'block';
             
             passwordForm.addEventListener('submit', async (e) => {
@@ -234,7 +234,7 @@
                     });
 
                     if (response.ok) {
-                        messageDiv.innerHTML = '<div class="message success">✅ Password updated successfully! You can now close this page and log in to LetterDrop with your new password.</div>';
+                        messageDiv.innerHTML = '<div class="message success">✅ Password updated successfully! You can now close this page and log in to LettrDrop with your new password.</div>';
                         passwordForm.style.display = 'none';
                     } else {
                         const error = await response.json();
@@ -251,7 +251,7 @@
 
         async function initEmailConfirmation() {
             titleEl.textContent = 'Email Confirmation';
-            subtitleEl.textContent = 'LetterDrop';
+            subtitleEl.textContent = 'LettrDrop';
             confirmationStatus.style.display = 'block';
         
             try {
@@ -270,9 +270,9 @@
                     confirmationStatus.style.display = 'none';
                     
                     if (type === 'email_change') {
-                        messageDiv.innerHTML = '<div class="message success">✅ Email change confirmed! Your new email address is now active. You can close this page and return to LetterDrop.</div>';
+                        messageDiv.innerHTML = '<div class="message success">✅ Email change confirmed! Your new email address is now active. You can close this page and return to LettrDrop.</div>';
                     } else {
-                        messageDiv.innerHTML = '<div class="message success">✅ Email confirmed successfully! You can now close this page and log in to LetterDrop.</div>';
+                        messageDiv.innerHTML = '<div class="message success">✅ Email confirmed successfully! You can now close this page and log in to LettrDrop.</div>';
                     }
                 } else {
                     const error = await response.json();
