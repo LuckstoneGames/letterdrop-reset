@@ -92,11 +92,7 @@
         const SUPABASE_URL = 'https://cqayvdjtnuadvxxkvkmn.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNxYXl2ZGp0bnVhZHZ4eGt2a21uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MjI3NzEsImV4cCI6MjA3ODA5ODc3MX0.PgXU4xFGXhneDlvFAYI6TdRWK3JwvKYn-2R0a_p5HZM';
 
-        // Norwegian for nb/nn/no browsers, English otherwise.
-        const NB = /^(nb|nn|no)\b/i.test(navigator.language || '');
-        document.documentElement.lang = NB ? 'nb' : 'en';
-
-        const T = NB ? {
+        const STRINGS = { no: {
             loading: 'Laster…',
             resetTitle: 'Nytt passord',
             newPassword: 'Nytt passord',
@@ -118,7 +114,7 @@
             invalid: 'Ugyldig lenke. Be om en ny fra appen.',
             generic: 'Noe gikk galt. Prøv igjen senere.',
             footer: 'Gå tilbake til appen for å fortsette.'
-        } : {
+        }, en: {
             loading: 'Loading…',
             resetTitle: 'New password',
             newPassword: 'New password',
@@ -140,16 +136,26 @@
             invalid: 'Invalid link. Please request a new one from the app.',
             generic: 'Something went wrong. Please try again later.',
             footer: 'Return to the app to continue.'
-        };
+        } };
 
         const titleEl = document.getElementById('title');
         const messageDiv = document.getElementById('message');
         const passwordForm = document.getElementById('passwordForm');
         const submitBtn = document.getElementById('submitBtn');
-        document.getElementById('footer').textContent = T.footer;
-        document.getElementById('newPassword').placeholder = T.newPassword;
-        document.getElementById('confirmPassword').placeholder = T.confirmPassword;
-        submitBtn.textContent = T.resetButton;
+
+        let T;
+        function setLanguage(code) {
+            T = STRINGS[code] || STRINGS.en;
+            document.documentElement.lang = code === 'no' ? 'nb' : 'en';
+            document.getElementById('footer').textContent = T.footer;
+            document.getElementById('newPassword').placeholder = T.newPassword;
+            document.getElementById('confirmPassword').placeholder = T.confirmPassword;
+            submitBtn.textContent = T.resetButton;
+        }
+
+        // Start with the browser language; the player's game language
+        // (user_metadata.locale) replaces it once the token is checked.
+        setLanguage(/^(nb|nn|no)\b/i.test(navigator.language || '') ? 'no' : 'en');
         titleEl.textContent = T.loading;
 
         // Supabase puts tokens (or an error) in the URL fragment.
@@ -202,12 +208,37 @@
             showMessage('info', T.changeHalf, T.confirmTitle);
         } else if (!accessToken) {
             showMessage('error', T.invalid, T.errorTitle);
-        } else if (type === 'recovery') {
-            initPasswordReset();
-        } else if (type === 'signup' || type === 'email_change') {
-            initEmailConfirmation();
+        } else if (type === 'recovery' || type === 'signup' || type === 'email_change') {
+            start();
         } else {
             showMessage('error', T.invalid, T.errorTitle);
+        }
+
+        // Checks the token and loads the player (for their game language) before showing anything.
+        async function start() {
+            if (type !== 'recovery') showSpinner(T.confirming);
+            let response;
+            try {
+                response = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+                    headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${accessToken}` }
+                });
+            } catch (err) {
+                return showMessage('error', T.generic, T.errorTitle);
+            }
+            const body = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                return showMessage('error', friendlyError(body), T.errorTitle);
+            }
+
+            const locale = body.user_metadata && body.user_metadata.locale;
+            if (locale === 'no' || locale === 'en') setLanguage(locale);
+
+            if (type === 'recovery') {
+                initPasswordReset();
+            } else {
+                // The link already confirmed the address; a valid session means it worked.
+                showMessage('success', type === 'email_change' ? T.changeDone : T.signupDone, T.confirmTitle);
+            }
         }
 
         function initPasswordReset() {
@@ -257,25 +288,6 @@
                     submitBtn.textContent = T.resetButton;
                 }
             });
-        }
-
-        async function initEmailConfirmation() {
-            titleEl.textContent = T.confirmTitle;
-            showSpinner(T.confirming);
-            try {
-                // The link already confirmed the address; this just checks the session is valid.
-                const response = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
-                    headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${accessToken}` }
-                });
-                if (response.ok) {
-                    showMessage('success', type === 'email_change' ? T.changeDone : T.signupDone);
-                } else {
-                    const body = await response.json().catch(() => ({}));
-                    showMessage('error', friendlyError(body), T.errorTitle);
-                }
-            } catch (err) {
-                showMessage('error', T.generic, T.errorTitle);
-            }
         }
     </script>
 </body>
