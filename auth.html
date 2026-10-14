@@ -1,17 +1,19 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>LettrDrop - Authentication</title>
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="theme-color" content="#20130e">
+    <title>LettrDrop</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        /* LettrDrop palette: INK #20130e, BARK #4c2c21, WOOD #78462c,
+           CLAY #ab6c46, SAND #d19e79, CREAM #f2e3c3 */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #20130e;
+            color: #f2e3c3;
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -19,210 +21,212 @@
             padding: 20px;
         }
         .container {
-            background: white;
-            padding: 40px;
+            background: #4c2c21;
+            border: 2px solid #78462c;
+            padding: 32px;
             border-radius: 16px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             max-width: 400px;
             width: 100%;
         }
-        h1 {
-            color: #333;
-            margin-bottom: 10px;
-            font-size: 28px;
-        }
-        .subtitle {
-            color: #666;
-            margin-bottom: 30px;
-            font-size: 14px;
-        }
+        .logo { display: block; max-width: 220px; margin: 0 auto 20px; image-rendering: pixelated; }
+        .brand { text-align: center; font-size: 14px; color: #d19e79; margin-bottom: 6px; letter-spacing: 1px; }
+        h1 { font-size: 26px; margin-bottom: 20px; text-align: center; }
         input {
             width: 100%;
             padding: 14px;
-            margin: 10px 0;
-            border: 2px solid #e0e0e0;
+            margin: 8px 0;
+            background: #20130e;
+            color: #f2e3c3;
+            border: 2px solid #78462c;
             border-radius: 8px;
             font-size: 16px;
-            transition: border-color 0.3s;
         }
-        input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
+        input::placeholder { color: #ab6c46; }
+        input:focus { outline: none; border-color: #d19e79; }
         button {
             width: 100%;
             padding: 14px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: #ab6c46;
+            color: #20130e;
             border: none;
             border-radius: 8px;
             cursor: pointer;
             font-size: 16px;
-            font-weight: 600;
-            margin-top: 10px;
-            transition: transform 0.2s, opacity 0.2s;
+            font-weight: 700;
+            margin-top: 12px;
         }
-        button:hover {
-            transform: translateY(-2px);
-            opacity: 0.9;
+        button:hover { background: #d19e79; }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .message { padding: 12px; margin: 0 0 16px; border-radius: 8px; font-size: 15px; line-height: 1.45; }
+        .error   { background: #3a1c1c; color: #e3a3a8; border: 1px solid #c24d57; }
+        .success { background: #1f2e29; color: #9ccabb; border: 1px solid #5f9e96; }
+        .info    { background: #20130e; color: #d19e79; border: 1px solid #78462c; }
+        .footer { margin-top: 20px; text-align: center; font-size: 13px; color: #d19e79; }
+        .spinner {
+            display: inline-block; width: 14px; height: 14px;
+            border: 2px solid #d19e79; border-top-color: transparent; border-radius: 50%;
+            animation: spin 0.8s linear infinite; vertical-align: middle; margin-right: 8px;
         }
-        button:active {
-            transform: translateY(0);
-        }
-        button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        .message {
-            padding: 12px;
-            margin: 15px 0;
-            border-radius: 8px;
-            font-size: 14px;
-        }
-        .error {
-            background: #fee;
-            color: #c33;
-            border: 1px solid #fcc;
-        }
-        .success {
-            background: #efe;
-            color: #3c3;
-            border: 1px solid #cfc;
-        }
-        .info {
-            background: #eef;
-            color: #33c;
-            border: 1px solid #ccf;
-        }
-        .footer {
-            margin-top: 20px;
-            text-align: center;
-            font-size: 13px;
-            color: #999;
-        }
-        .loading {
-            display: inline-block;
-            width: 12px;
-            height: 12px;
-            border: 2px solid #fff;
-            border-top-color: transparent;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            margin-left: 8px;
-        }
-        .icon {
-            font-size: 48px;
-            text-align: center;
-            margin-bottom: 10px;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        #passwordForm {
-            display: none;
-        }
-        #confirmationStatus {
-            display: none;
-            text-align: center;
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .hidden { display: none; }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="icon">🎮</div>
-        <h1 id="title">LettrDrop</h1>
-        <div class="subtitle" id="subtitle">Loading...</div>
+        <!-- Drop your logo PNG next to this file and uncomment:
+        <img class="logo" src="logo.png" alt="LettrDrop"> -->
+        <div class="brand">LETTRDROP</div>
+        <h1 id="title"></h1>
         <div id="message"></div>
-        
-        <!-- Password Reset Form -->
-        <form id="passwordForm">
-            <input type="password" id="newPassword" placeholder="New Password" required minlength="6" autocomplete="new-password">
-            <input type="password" id="confirmPassword" placeholder="Confirm Password" required minlength="6" autocomplete="new-password">
-            <button type="submit" id="submitBtn">Reset Password</button>
+
+        <form id="passwordForm" class="hidden">
+            <input type="password" id="newPassword" required minlength="6" autocomplete="new-password">
+            <input type="password" id="confirmPassword" required minlength="6" autocomplete="new-password">
+            <button type="submit" id="submitBtn"></button>
         </form>
-        
-        <!-- Email Confirmation Status -->
-        <div id="confirmationStatus">
-            <div class="loading"></div>
-            <p>Confirming your email...</p>
-        </div>
-        
-        <div class="footer" id="footer">
-            Return to the app to continue.
-        </div>
+
+        <div id="footer" class="footer"></div>
     </div>
 
     <script>
         const SUPABASE_URL = 'https://cqayvdjtnuadvxxkvkmn.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNxYXl2ZGp0bnVhZHZ4eGt2a21uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MjI3NzEsImV4cCI6MjA3ODA5ODc3MX0.PgXU4xFGXhneDlvFAYI6TdRWK3JwvKYn-2R0a_p5HZM';
 
-        // Get token and type from URL
-        let accessToken = null;
-        let type = null;
-        
-        const hashParams = new URLSearchParams(window.location.hash.substring(1));
-        accessToken = hashParams.get('access_token');
-        type = hashParams.get('type');
-        
-        if (!accessToken) {
-            const urlParams = new URLSearchParams(window.location.search);
-            accessToken = urlParams.get('access_token');
-            type = urlParams.get('type');
+        // Norwegian for nb/nn/no browsers, English otherwise.
+        const NB = /^(nb|nn|no)\b/i.test(navigator.language || '');
+        document.documentElement.lang = NB ? 'nb' : 'en';
+
+        const T = NB ? {
+            loading: 'Laster…',
+            resetTitle: 'Nytt passord',
+            newPassword: 'Nytt passord',
+            confirmPassword: 'Gjenta passordet',
+            resetButton: 'Lagre passord',
+            updating: 'Lagrer…',
+            mismatch: 'Passordene er ikke like.',
+            tooShort: 'Passordet må ha minst 6 tegn.',
+            leaked: 'Dette passordet har dukket opp i en datalekkasje et annet sted. Velg et annet passord.',
+            samePassword: 'Det nye passordet må være forskjellig fra det gamle.',
+            resetDone: 'Passordet er oppdatert! Du kan lukke denne siden og logge inn i LettrDrop med det nye passordet.',
+            confirmTitle: 'E-post bekreftet',
+            confirming: 'Bekrefter e-postadressen…',
+            signupDone: 'E-postadressen er bekreftet! Du kan lukke denne siden og logge inn i LettrDrop.',
+            changeDone: 'Den nye e-postadressen er bekreftet og nå i bruk. Du kan lukke denne siden og gå tilbake til LettrDrop.',
+            changeHalf: 'Første bekreftelse er mottatt. Åpne lenken i e-posten som ble sendt til den andre adressen for å fullføre endringen.',
+            errorTitle: 'Noe gikk galt',
+            expired: 'Lenken er utløpt eller allerede brukt. Be om en ny fra appen.',
+            invalid: 'Ugyldig lenke. Be om en ny fra appen.',
+            generic: 'Noe gikk galt. Prøv igjen senere.',
+            footer: 'Gå tilbake til appen for å fortsette.'
+        } : {
+            loading: 'Loading…',
+            resetTitle: 'New password',
+            newPassword: 'New password',
+            confirmPassword: 'Repeat password',
+            resetButton: 'Save password',
+            updating: 'Saving…',
+            mismatch: 'The passwords don\'t match.',
+            tooShort: 'Password must be at least 6 characters.',
+            leaked: 'This password has shown up in a data leak elsewhere. Please choose a different one.',
+            samePassword: 'Your new password must be different from the old one.',
+            resetDone: 'Password updated! You can close this page and log in to LettrDrop with your new password.',
+            confirmTitle: 'Email confirmed',
+            confirming: 'Confirming your email…',
+            signupDone: 'Your email is confirmed! You can close this page and log in to LettrDrop.',
+            changeDone: 'Your new email address is confirmed and now active. You can close this page and return to LettrDrop.',
+            changeHalf: 'First confirmation received. Open the link in the email sent to your other address to finish the change.',
+            errorTitle: 'Something went wrong',
+            expired: 'This link has expired or was already used. Please request a new one from the app.',
+            invalid: 'Invalid link. Please request a new one from the app.',
+            generic: 'Something went wrong. Please try again later.',
+            footer: 'Return to the app to continue.'
+        };
+
+        const titleEl = document.getElementById('title');
+        const messageDiv = document.getElementById('message');
+        const passwordForm = document.getElementById('passwordForm');
+        const submitBtn = document.getElementById('submitBtn');
+        document.getElementById('footer').textContent = T.footer;
+        document.getElementById('newPassword').placeholder = T.newPassword;
+        document.getElementById('confirmPassword').placeholder = T.confirmPassword;
+        submitBtn.textContent = T.resetButton;
+        titleEl.textContent = T.loading;
+
+        // Supabase puts tokens (or an error) in the URL fragment.
+        const params = new URLSearchParams(window.location.hash.substring(1) || window.location.search.substring(1));
+        const accessToken = params.get('access_token');
+        const type = params.get('type');
+        const errorCode = params.get('error_code');
+        const infoMessage = params.get('message');
+
+        // Don't leave the token sitting in the address bar / browser history.
+        if (window.location.hash || window.location.search) {
+            history.replaceState(null, '', window.location.pathname);
         }
 
-        const messageDiv = document.getElementById('message');
-        const titleEl = document.getElementById('title');
-        const subtitleEl = document.getElementById('subtitle');
-        const passwordForm = document.getElementById('passwordForm');
-        const confirmationStatus = document.getElementById('confirmationStatus');
-        const submitBtn = document.getElementById('submitBtn');
+        function showMessage(kind, text, title) {
+            if (title) titleEl.textContent = title;
+            messageDiv.innerHTML = '';
+            const box = document.createElement('div');
+            box.className = 'message ' + kind;
+            box.textContent = text;  // textContent, never innerHTML, for anything server- or URL-derived
+            messageDiv.appendChild(box);
+        }
 
-        console.log('Token present:', !!accessToken);
-        console.log('Type:', type);
+        function showSpinner(text) {
+            messageDiv.innerHTML = '';
+            const box = document.createElement('div');
+            box.className = 'message info';
+            const spin = document.createElement('span');
+            spin.className = 'spinner';
+            box.appendChild(spin);
+            box.appendChild(document.createTextNode(text));
+            messageDiv.appendChild(box);
+        }
 
-        // Route based on type
-        if (!accessToken) {
-            showError('Invalid or expired link. Please request a new one from the app.');
+        // Maps Supabase Auth error responses to friendly text.
+        function friendlyError(body) {
+            const code = body && (body.error_code || body.code);
+            const msg = String((body && (body.msg || body.message || body.error_description)) || '').toLowerCase();
+            if (code === 'weak_password' || msg.includes('known to be weak')) return T.leaked;
+            if (code === 'same_password' || msg.includes('should be different')) return T.samePassword;
+            if (msg.includes('at least')) return T.tooShort;
+            if (code === 'bad_jwt' || code === 'session_not_found' || msg.includes('expired') || msg.includes('invalid jwt')) return T.expired;
+            return T.generic;
+        }
+
+        if (errorCode) {
+            showMessage('error', errorCode === 'otp_expired' ? T.expired : T.invalid, T.errorTitle);
+        } else if (!accessToken && infoMessage) {
+            // Secure email change: the first of two links was accepted.
+            showMessage('info', T.changeHalf, T.confirmTitle);
+        } else if (!accessToken) {
+            showMessage('error', T.invalid, T.errorTitle);
         } else if (type === 'recovery') {
             initPasswordReset();
         } else if (type === 'signup' || type === 'email_change') {
             initEmailConfirmation();
         } else {
-            showError('Unknown action type. Please try again.');
-        }
-
-        function showError(msg) {
-            titleEl.textContent = 'Authentication Error';
-            subtitleEl.textContent = 'LettrDrop';
-            messageDiv.innerHTML = `<div class="message error">❌ ${msg}</div>`;
+            showMessage('error', T.invalid, T.errorTitle);
         }
 
         function initPasswordReset() {
-            titleEl.textContent = 'Reset Password';
-            subtitleEl.textContent = 'LettrDrop';
-            passwordForm.style.display = 'block';
-            
+            titleEl.textContent = T.resetTitle;
+            passwordForm.classList.remove('hidden');
+
             passwordForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                
                 const newPassword = document.getElementById('newPassword').value;
                 const confirmPassword = document.getElementById('confirmPassword').value;
 
-                if (newPassword !== confirmPassword) {
-                    messageDiv.innerHTML = '<div class="message error">❌ Passwords do not match!</div>';
-                    return;
-                }
+                if (newPassword !== confirmPassword) return showMessage('error', T.mismatch);
+                if (newPassword.length < 6) return showMessage('error', T.tooShort);
 
-                if (newPassword.length < 6) {
-                    messageDiv.innerHTML = '<div class="message error">❌ Password must be at least 6 characters.</div>';
-                    return;
-                }
+                submitBtn.disabled = true;
+                submitBtn.textContent = T.updating;
+                messageDiv.innerHTML = '';
 
                 try {
-                    submitBtn.disabled = true;
-                    submitBtn.innerHTML = 'Updating<span class="loading"></span>';
-                    messageDiv.innerHTML = '<div class="message info">⏳ Updating password...</div>';
-
                     const response = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
                         method: 'PUT',
                         headers: {
@@ -234,55 +238,43 @@
                     });
 
                     if (response.ok) {
-                        messageDiv.innerHTML = '<div class="message success">✅ Password updated successfully! You can now close this page and log in to LettrDrop with your new password.</div>';
-                        passwordForm.style.display = 'none';
+                        passwordForm.classList.add('hidden');
+                        showMessage('success', T.resetDone);
+                        // End the one-off recovery session; the player signs in fresh in the app.
+                        fetch(`${SUPABASE_URL}/auth/v1/logout`, {
+                            method: 'POST',
+                            headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${accessToken}` }
+                        }).catch(() => {});
                     } else {
-                        const error = await response.json();
-                        throw new Error(error.error_description || error.message || error.msg || 'Failed to update password');
+                        const body = await response.json().catch(() => ({}));
+                        showMessage('error', friendlyError(body));
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = T.resetButton;
                     }
-                } catch (error) {
-                    console.error('Error:', error);
-                    messageDiv.innerHTML = `<div class="message error">❌ Error: ${error.message}</div>`;
+                } catch (err) {
+                    showMessage('error', T.generic);
                     submitBtn.disabled = false;
-                    submitBtn.innerHTML = 'Reset Password';
+                    submitBtn.textContent = T.resetButton;
                 }
             });
         }
 
         async function initEmailConfirmation() {
-            titleEl.textContent = 'Email Confirmation';
-            subtitleEl.textContent = 'LettrDrop';
-            confirmationStatus.style.display = 'block';
-        
+            titleEl.textContent = T.confirmTitle;
+            showSpinner(T.confirming);
             try {
-                // For email changes, the token in the URL automatically confirms
-                // We just need to check if the session is valid
+                // The link already confirmed the address; this just checks the session is valid.
                 const response = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
-                    method: 'GET',
-                    headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${accessToken}`
-                    }
+                    headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${accessToken}` }
                 });
-        
                 if (response.ok) {
-                    const user = await response.json();
-                    confirmationStatus.style.display = 'none';
-                    
-                    if (type === 'email_change') {
-                        messageDiv.innerHTML = '<div class="message success">✅ Email change confirmed! Your new email address is now active. You can close this page and return to LettrDrop.</div>';
-                    } else {
-                        messageDiv.innerHTML = '<div class="message success">✅ Email confirmed successfully! You can now close this page and log in to LettrDrop.</div>';
-                    }
+                    showMessage('success', type === 'email_change' ? T.changeDone : T.signupDone);
                 } else {
-                    const error = await response.json();
-                    confirmationStatus.style.display = 'none';
-                    messageDiv.innerHTML = `<div class="message error">❌ ${error.error_description || error.msg || 'Confirmation failed. The link may have expired.'}</div>`;
+                    const body = await response.json().catch(() => ({}));
+                    showMessage('error', friendlyError(body), T.errorTitle);
                 }
-            } catch (error) {
-                console.error('Error:', error);
-                confirmationStatus.style.display = 'none';
-                messageDiv.innerHTML = '<div class="message error">❌ Unable to confirm email. Please try again later.</div>';
+            } catch (err) {
+                showMessage('error', T.generic, T.errorTitle);
             }
         }
     </script>
